@@ -6,13 +6,32 @@ import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
+
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.facebook.react.module.annotations.ReactModule;
+import com.facebook.react.uimanager.ViewManagerDelegate;
+import com.facebook.react.viewmanagers.FastImageViewManagerDelegate;
+import com.facebook.react.viewmanagers.FastImageViewManagerInterface;
 
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
-class FastImageViewManager extends SimpleViewManager<FastImageViewWithUrl> implements FastImageProgressListener {
+@ReactModule(name = FastImageViewManagerImpl.NAME)
+class FastImageViewManager extends SimpleViewManager<FastImageViewWithUrl>
+        implements FastImageProgressListener, FastImageViewManagerInterface<FastImageViewWithUrl> {
+
+    private final ViewManagerDelegate<FastImageViewWithUrl> mDelegate;
+
+    public FastImageViewManager() {
+        mDelegate = new FastImageViewManagerDelegate<>(this);
+    }
+
+    @Nullable
+    @Override
+    protected ViewManagerDelegate<FastImageViewWithUrl> getDelegate() {
+        return mDelegate;
+    }
 
     @Nullable
     private RequestManager requestManager = null;
@@ -31,16 +50,19 @@ class FastImageViewManager extends SimpleViewManager<FastImageViewWithUrl> imple
         return new FastImageViewWithUrl(reactContext);
     }
 
+    @Override
     @ReactProp(name = "source")
-    public void setSrc(FastImageViewWithUrl view, @Nullable ReadableMap source) {
+    public void setSource(FastImageViewWithUrl view, @Nullable ReadableMap source) {
         FastImageViewManagerImpl.setSrc(view,source,requestManager,this);
     }
 
+    @Override
     @ReactProp(name = "tintColor", customType = "Color")
-    public void setTintColor(FastImageViewWithUrl view, @Nullable Integer color) {
+    public void setTintColor(FastImageViewWithUrl view, int color) {
         FastImageViewManagerImpl.setTintColor(view,color);
     }
 
+    @Override
     @ReactProp(name = "resizeMode")
     public void setResizeMode(FastImageViewWithUrl view, String resizeMode) {
         FastImageViewManagerImpl.setResizeMode(view,resizeMode);

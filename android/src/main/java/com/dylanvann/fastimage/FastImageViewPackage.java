@@ -8,10 +8,50 @@ import com.facebook.react.uimanager.ViewManager;
 import java.util.Collections;
 import java.util.List;
 
-public class FastImageViewPackage implements ReactPackage {
+import androidx.annotation.Nullable;
+
+import com.facebook.react.module.model.ReactModuleInfo;
+import com.facebook.react.module.model.ReactModuleInfoProvider;
+import com.facebook.react.TurboReactPackage;
+import com.facebook.react.uimanager.ViewManager;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class FastImageViewPackage extends TurboReactPackage implements ReactPackage {
+
+    @Nullable
+    @Override
+    public NativeModule getModule(String name, ReactApplicationContext reactContext) {
+        if (name.equals(FastImageViewModuleImpl.NAME)) {
+            return new FastImageViewModule(reactContext);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public ReactModuleInfoProvider getReactModuleInfoProvider() {
+        return () -> {
+            final Map<String, ReactModuleInfo> moduleInfos = new HashMap<>();
+            moduleInfos.put(
+                    FastImageViewModuleImpl.NAME,
+                    new ReactModuleInfo(
+                            FastImageViewModuleImpl.NAME,
+                            FastImageViewModuleImpl.NAME,
+                            false, // canOverrideExistingModule
+                            false, // needsEagerInit
+                            true, // hasConstants
+                            false, // isCxxModule
+                            BuildConfig.IS_NEW_ARCHITECTURE_ENABLED // isTurboModule
+                    ));
+            return moduleInfos;
+        };
+    }
+
     @Override
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
-        return Collections.<NativeModule>singletonList(new FastImageViewModule(reactContext));
+        return Collections.emptyList();
     }
 
     @Override
