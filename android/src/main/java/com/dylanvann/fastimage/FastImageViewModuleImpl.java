@@ -11,7 +11,7 @@ import com.facebook.react.bridge.ReadableMap;
 
 
 public class FastImageViewModuleImpl {
-    public static final String NAME = "FastImageView";
+    public static final String NAME = "FastImage";
 
     public static void preload(final ReadableArray sources, final ReactApplicationContext context) {
         if(!context.hasCurrentActivity()) return;
