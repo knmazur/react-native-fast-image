@@ -12,11 +12,18 @@ import android.graphics.PorterDuff;
 import com.bumptech.glide.RequestManager;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.request.Request;
+import com.dylanvann.fastimage.events.TopLoadEndEvent;
+import com.dylanvann.fastimage.events.TopLoadEvent;
+import com.dylanvann.fastimage.events.TopLoadStartEvent;
+import com.dylanvann.fastimage.events.TopLoadProgressEvent;
+import com.dylanvann.fastimage.events.TopSourceErrorEvent;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.common.MapBuilder;
 import com.facebook.react.uimanager.ThemedReactContext;
+import com.facebook.react.uimanager.UIManagerHelper;
 import com.facebook.react.uimanager.events.RCTEventEmitter;
 
 import java.util.ArrayList;
@@ -51,11 +58,11 @@ public class FastImageViewManagerImpl {
         final FastImageSource imageSource = FastImageViewConverter.getImageSource(view.getContext(), source);
         if (imageSource.getUri().toString().length() == 0) {
             ThemedReactContext context = (ThemedReactContext) view.getContext();
-            RCTEventEmitter eventEmitter = context.getJSModule(RCTEventEmitter.class);
             int viewId = view.getId();
             WritableMap event = new WritableNativeMap();
             event.putString("message", "Invalid source prop:" + source);
-            eventEmitter.receiveEvent(viewId, REACT_ON_ERROR_EVENT, event);
+            UIManagerHelper.getEventDispatcherForReactTag((ReactContext) context, viewId)
+                    .dispatchEvent(new TopSourceErrorEvent(viewId, event));
 
             // Cancel existing requests.
             if (requestManager != null) {
@@ -87,9 +94,9 @@ public class FastImageViewManagerImpl {
         }
 
         ThemedReactContext context = (ThemedReactContext) view.getContext();
-        RCTEventEmitter eventEmitter = context.getJSModule(RCTEventEmitter.class);
         int viewId = view.getId();
-        eventEmitter.receiveEvent(viewId, REACT_ON_LOAD_START_EVENT, new WritableNativeMap());
+        UIManagerHelper.getEventDispatcherForReactTag((ReactContext) context, viewId)
+                .dispatchEvent(new TopLoadStartEvent(viewId, new WritableNativeMap()));
 
         if (requestManager != null) {
             requestManager
@@ -136,11 +143,11 @@ public class FastImageViewManagerImpl {
 
     public static Map<String, Object> getExportedCustomDirectEventTypeConstants() {
         return MapBuilder.<String, Object>builder()
-                .put(REACT_ON_LOAD_START_EVENT, MapBuilder.of("registrationName", REACT_ON_LOAD_START_EVENT))
-                .put(REACT_ON_PROGRESS_EVENT, MapBuilder.of("registrationName", REACT_ON_PROGRESS_EVENT))
-                .put(REACT_ON_LOAD_EVENT, MapBuilder.of("registrationName", REACT_ON_LOAD_EVENT))
-                .put(REACT_ON_ERROR_EVENT, MapBuilder.of("registrationName", REACT_ON_ERROR_EVENT))
-                .put(REACT_ON_LOAD_END_EVENT, MapBuilder.of("registrationName", REACT_ON_LOAD_END_EVENT))
+                .put(TopLoadStartEvent.EVENT_NAME, MapBuilder.of("registrationName", REACT_ON_LOAD_START_EVENT))
+                .put(TopLoadProgressEvent.EVENT_NAME, MapBuilder.of("registrationName", REACT_ON_PROGRESS_EVENT))
+                .put(TopLoadEvent.EVENT_NAME, MapBuilder.of("registrationName", REACT_ON_LOAD_EVENT))
+                .put(TopSourceErrorEvent.EVENT_NAME, MapBuilder.of("registrationName", REACT_ON_ERROR_EVENT))
+                .put(TopLoadEndEvent.EVENT_NAME, MapBuilder.of("registrationName", REACT_ON_LOAD_END_EVENT))
                 .build();
     }
 
@@ -152,9 +159,9 @@ public class FastImageViewManagerImpl {
                 event.putInt("loaded", (int) bytesRead);
                 event.putInt("total", (int) expectedLength);
                 ThemedReactContext context = (ThemedReactContext) view.getContext();
-                RCTEventEmitter eventEmitter = context.getJSModule(RCTEventEmitter.class);
                 int viewId = view.getId();
-                eventEmitter.receiveEvent(viewId, REACT_ON_PROGRESS_EVENT, event);
+                UIManagerHelper.getEventDispatcherForReactTag((ReactContext) context, viewId)
+                        .dispatchEvent(new TopLoadProgressEvent(viewId, event));
             }
         }
     }

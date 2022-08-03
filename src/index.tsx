@@ -14,7 +14,10 @@ import {
     ViewProps,
 } from 'react-native'
 
-const FastImageViewNativeModule = NativeModules.FastImageView
+
+const isTurboModuleEnabled = (global as any).__turboModuleProxy != null;
+
+const FastImageViewNativeModule = isTurboModuleEnabled ? require("./NativeFastImage").default : NativeModules.FastImage
 
 export type ResizeMode = 'contain' | 'cover' | 'stretch' | 'center'
 
@@ -230,8 +233,10 @@ const styles = StyleSheet.create({
     },
 })
 
+const isFabricEnabled = (global as any).nativeFabricUIManager != null
+
 // Types of requireNativeComponent are not correct.
-const FastImageView = (requireNativeComponent as any)(
+const FastImageView = isFabricEnabled ? (requireNativeComponent as any)(
     'FastImageView',
     FastImage,
     {
@@ -243,6 +248,6 @@ const FastImageView = (requireNativeComponent as any)(
             onFastImageLoadEnd: true,
         },
     },
-)
+) : require("./FastImageViewNativeComponent").default 
 
 export default FastImage
