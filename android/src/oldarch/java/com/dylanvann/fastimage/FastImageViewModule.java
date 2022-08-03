@@ -1,7 +1,5 @@
 package com.dylanvann.fastimage;
 
-import android.app.Activity;
-
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
@@ -9,9 +7,11 @@ import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.ReadableArray;
 
 class FastImageViewModule extends ReactContextBaseJavaModule {
+    private ReactApplicationContext reactContext;
 
     FastImageViewModule(ReactApplicationContext reactContext) {
         super(reactContext);
+        this.reactContext = reactContext;
     }
 
     @Override
@@ -21,19 +21,16 @@ class FastImageViewModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void preload(final ReadableArray sources) {
-        final Activity activity = getCurrentActivity();
-        FastImageViewModuleImpl.preload(sources, activity);
+        FastImageViewModuleImpl.preload(sources, reactContext);
     }
 
     @ReactMethod
     public void clearMemoryCache(final Promise promise) {
-        final Activity activity = getCurrentActivity();
-        FastImageViewModuleImpl.clearMemoryCache(promise, activity);
+        FastImageViewModuleImpl.clearMemoryCache(promise, reactContext);
     }
 
     @ReactMethod
     public void clearDiskCache(Promise promise) {
-        final Activity activity = getCurrentActivity();
-        FastImageViewModuleImpl.clearDiskCache(promise, activity);
+        FastImageViewModuleImpl.clearDiskCache(promise, reactContext);
     }
 }
