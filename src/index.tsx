@@ -236,7 +236,7 @@ const styles = StyleSheet.create({
 const isFabricEnabled = (global as any).nativeFabricUIManager != null
 
 // Types of requireNativeComponent are not correct.
-const FastImageView = isFabricEnabled ? (requireNativeComponent as any)(
+const FastImageView = !isFabricEnabled ? (requireNativeComponent as any)(
     'FastImageView',
     FastImage,
     {
